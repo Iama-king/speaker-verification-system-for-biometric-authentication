@@ -1,4 +1,4 @@
-# speaker-verification-system-for-bimetric-authentication
+# speaker-verification-system-for-biometric-authentication
 This system designed to identify and authenticate individuals based on their unique vocal characteristics. It utilizes advanced algorithms and signal processing techniques to analyze and compare voice samples for verification purposes.
 The system typically consists of two main stages: enrollment and verification. During the enrollment stage, the user's voice is recorded and analyzed to extract distinctive features, such as pitch, frequency, and duration patterns. These features are then converted into a digital voiceprint or template, which serves as a reference for future verification.
 In the verification stage, when a user attempts to gain access to a system or service, their voice is captured and compared against the stored voiceprint. The system performs a series of sophisticated algorithms to measure the similarity between the newly captured voice and the stored template. If the similarity exceeds a predefined threshold, the user is granted access. Otherwise, the authentication is denied.
