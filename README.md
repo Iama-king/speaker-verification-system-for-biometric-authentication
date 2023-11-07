@@ -9,6 +9,9 @@ In the verification stage, when a user attempts to gain access to a system or se
   
   https://drive.google.com/file/d/1RJNzaAxawP-3SR5AEti-E2G5kQANEWy9/view?usp=sharing
 
+
+  The model is not perfect it still needs improvements , if it is not performing well try cleaning your audio file before enrollment, record in a silent environment, try retraining the model from the begining by running train.py ,change the audio source path file to yours ,
+
   analysis with various optimizers
 
     
