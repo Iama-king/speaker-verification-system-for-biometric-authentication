@@ -4,6 +4,11 @@ The system typically consists of two main stages: enrollment and verification. D
 In the verification stage, when a user attempts to gain access to a system or service, their voice is captured and compared against the stored voiceprint. The system performs a series of sophisticated algorithms to measure the similarity between the newly captured voice and the stored template. If the similarity exceeds a predefined threshold, the user is granted access. Otherwise, the authentication is denied.
 # journal paper link : http://www.ijnrd.org/papers/IJNRD2306536.pdf
 
+
+  implementation video:
+  
+  https://drive.google.com/file/d/1RJNzaAxawP-3SR5AEti-E2G5kQANEWy9/view?usp=sharing
+
   analysis with various optimizers
 
     
