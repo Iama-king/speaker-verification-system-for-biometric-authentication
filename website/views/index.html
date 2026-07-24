@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="/css/log.css">
+      <title>speaker-verification</title>
+
+
+   
+      
+    </head>
+
+
+
+
+
+
+<body>
+<div id="container" class="container">
+    <!-- FORM SECTION -->
+    <div class="row">
+        <!-- SIGN UP -->
+        <div class="col align-items-center flex-col sign-up">
+            <div class="form-wrapper align-items-center">
+                <div class="form sign-up">
+                <form>
+                    <div class="input-group">
+                        <i class='bx bxs-user'></i>
+                        <input type="text" placeholder="Username" id="uname" name="name"required>
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bx-mail-send'></i>
+                        <input type="email" placeholder="Email" id="ename" name="email" required>
+                    </div>
+                
+                    <!-- <div class="input-group">
+                        <i class='bx bxs-lock-alt'></i>
+                        <input type="password" placeholder="Password">
+                    </div>
+                    <div class="input-group">
+                        <i class='bx bxs-lock-alt'></i>
+                        <input type="password" placeholder="Confirm password">
+                    </div> -->
+                    <div id="recordedAudioContainer">
+                    <button id="recordButton" >
+                        START
+                    </button>
+                
+                    <br><br>
+                    <button id="saveButton" disabled="true">CONFIRM</button>
+                    <br><br>
+                    <button id="stopButton" disabled="true">
+                        DISCARD
+                    </button>
+                    <br><br>
+                   </div>
+                    <button disabled="true" id="sub" onclick="createAccount()" class="pointer">
+                        SIGN UP
+                    </button>
+              
+                    <p>
+                        <span>
+                            Already have an account?
+                        </span>
+                        <b onclick="toggle()" class="pointer">
+                            Sign in here
+                        </b>
+                    </p>
+                 
+                </div>
+            </div>
+        
+        </div>
+        <!-- END SIGN UP -->
+        <!-- SIGN IN -->
+        
+        <div class="col align-items-center flex-col sign-in">
+            <div class="form-wrapper align-items-center">
+                <div id = "controls" class="form sign-in">
+                  <!-- <form method="POST" target="_blank"> -->
+                    <div class="input-group">
+                        <i class='bx bxs-user'></i>
+                        <input type="text" placeholder="Username" id="unam" name="loguser" required>
+                    </div>
+                    <!-- <div class="input-group">
+                        <i class='bx bxs-lock-alt'></i>
+                        <input type="password" placeholder="Password">
+                    </div> -->
+                    
+
+                    <div id="recordedAudioContaine">
+                    
+                    <button id="recordButto">
+                       START
+                    </button>
+                    <br><br>
+                    <button id="saveButto" disabled="true" >CONFIRM</button>
+                    <br><br>
+                    <button id="stopButto" disabled="true">
+                       DISCARD
+                    </button>
+                    <br><br>
+                    <button type="submit" id="login"  disabled='true' value="Submit">
+                        LOGIN 
+                    </button>
+                
+                    <br><br>
+                   </div>
+                    <p>
+                        <span>
+                            Don't have an account?
+                        </span>
+                        <b onclick="toggle()" class="pointer">
+                            Enroll here
+                        </b>
+                        <br>
+                        
+                    </p>
+                </div>
+            </div>
+            <div class="form-wrapper">
+    
+            </div>
+            
+        </div>
+        <!-- END SIGN IN -->
+       
+    </div>
+    <!-- END FORM SECTION -->
+    <!-- CONTENT SECTION -->
+    <div class="row content-row">
+        <!-- SIGN IN CONTENT -->
+        <div class="col align-items-center flex-col">
+            <div class="text sign-in">
+                
+                <!-- <h2>
+                    Welcome to learnx
+                </h2> -->
+
+            </div>
+            <div class="img sign-in">
+    
+            </div>
+        </div>
+        <!-- END SIGN IN CONTENT -->
+        <!-- SIGN UP CONTENT -->
+        <div class="col align-items-center flex-col">
+            <div class="img sign-up">
+            
+            </div>
+            <div class="text sign-up">
+                <!-- <h2>
+                    Join with us<br> on learnx
+                </h2> -->
+
+            </div>
+        </div>
+        <!-- END SIGN UP CONTENT -->
+       
+    </div>
+    <!-- END CONTENT SECTION -->
+</div>
+<script>
+    let container = document.getElementById('container')
+
+toggle = () => {
+	container.classList.toggle('sign-in')
+	container.classList.toggle('sign-up')
+}
+
+setTimeout(() => {
+	container.classList.add('sign-in')
+}, 200)
+</script>
+<script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+<script>
+     document.getElementById("sub").addEventListener('click',createAccount);
+        const firebaseConfig = {
+            apiKey: "AIzaSyCoGB9IxizhNo6_dSUPrDLz1Gcu1o6EJco",
+            authDomain: "speaker-verification-88859.firebaseapp.com",
+            projectId: "speaker-verification-88859",
+            storageBucket: "speaker-verification-88859.appspot.com",
+            messagingSenderId: "980485855162",
+            appId: "1:980485855162:web:9ec5ed262df0fc9a826f83",
+            measurementId: "G-DFJTC4CLXZ"
+        };
+        firebase.initializeApp(firebaseConfig);
+        function createAccount(){
+            // obtain user email and user password from HTML
+            var useremail = document.getElementById("ename").value;
+            var usernameaspass = document.getElementById("uname").value;
+            firebase.auth().createUserWithEmailAndPassword(useremail, usernameaspass).catch((error) =>{
+                //error code
+                var errorCode = error.code
+                //error message
+                var errorMessage = error.message
+                console.log(errorMessage)           
+            }).then(() => {
+                //redirect the user to profile page
+                window.location.assign("/new.html")
+            });
+        }
+
+
+        
+</script>
+<script src="js/record.js"></script>
+<script src="js/input.js"></script>
+
+
+</body>
+
+</html>

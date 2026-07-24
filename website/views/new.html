@@ -1,0 +1,85 @@
+<!-- <form>
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+        <br><br>
+        <span id="user_err"></span>
+    </div>
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+        <br><br>
+        <span id="pass_err"></span>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="validateForm()">Login</button>
+</form>
+
+<script>
+    function validateForm() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        if (username === "" || password === "") {
+            document.getElementById('pass_err').innerHTML='Please enter the username and password!'
+        } else {
+            alert("Welcome, " + username + "!");
+        }
+    }
+</script> -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Logged In</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+		}
+		.container {
+			margin: 100px auto;
+			max-width: 500px;
+			text-align: center;
+			background-color: #fff;
+			border-radius: 5px;
+			padding: 20px;
+			box-shadow: 0px 0px 10px #888888;
+		}
+		h1 {
+			color: #1c1c1c;
+		}
+		p {
+			font-size: 18px;
+			margin-top: 20px;
+			color: #666666;
+		}
+		.button {
+			background-color: #4CAF50;
+			border: none;
+			color: white;
+			padding: 10px 20px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin-top: 20px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		.button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>You're successfully logged in</h1>
+		<p>Welcome back! You're now logged in to your account.</p>
+		<button class="button" onclick="" >ok</button>
+	</div>
+	<script>
+		function logout() {
+			// Code to log the user out goes here
+		}
+	</script>
+</body>
+</html>
+
