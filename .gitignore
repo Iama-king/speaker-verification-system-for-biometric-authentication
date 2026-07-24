@@ -41,35 +41,14 @@ test_output.txt
 Thumbs.db
 .DS_Store
 
-# Personal/PHI: named individuals' voice biometric data (embeddings, features, raw audio).
-# Only the anonymized dataset speakers (e.g. 103F3021) ship in this repo.
-enroll_embeddings/Audio1.pth
-enroll_embeddings/balamurugan.pth
-enroll_embeddings/dinesh.pth
-enroll_embeddings/dpdarshan.pth
-enroll_embeddings/Gokul.pth
-enroll_embeddings/gopika.pth
-enroll_embeddings/gopikasri.pth
-enroll_embeddings/gopinath.pth
-enroll_embeddings/Gowtham.pth
-enroll_embeddings/gugan.pth
-enroll_embeddings/harikrishna.pth
-enroll_embeddings/harinivas.pth
-enroll_embeddings/Hema.pth
-enroll_embeddings/jeeva.pth
-enroll_embeddings/keerthana.pth
-enroll_embeddings/lakshiha.pth
-enroll_embeddings/Madhu.pth
-enroll_embeddings/madhumitha.pth
-enroll_embeddings/sanjay.pth
-enroll_embeddings/Sowmitha.pth
-enroll_embeddings/swarna.pth
-enroll_embeddings/tharunsk.pth
+# Personal/PHI: named individuals' voice biometric data not already exposed on GitHub's `main`.
+# enroll_embeddings/*.pth (all names), recording.wav, and test_wavs/{sanjay,swarna} were already
+# public on `main` before this cleanup, so those ship (regenerated against the current checkpoint
+# where relevant — see docs/PROJECT_ANALYSIS.md). feat_logfbank_nfilt40 test features and
+# website/ recordings were never exposed, so those stay out to avoid *new* exposure.
 feat_logfbank_nfilt40/test/gopika/
 feat_logfbank_nfilt40/test/sanjay/
 feat_logfbank_nfilt40/test/swarna/
-test_wavs/
-recording.wav
 docs/RESULTS_LOCAL.md
 
 # Model checkpoints: only the validated-best checkpoint ships; the rest are local artifacts.

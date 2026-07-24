@@ -76,21 +76,31 @@ is an empty stub — a syntax error if actually run).
    internally), but the reported confidence number was misleading. Fixed to return `max_score`.
 6. **No requirements.txt / run instructions** — added `requirements.txt` and a proper `README.md`.
 
-## Personally-identifiable data — kept out of this public repo
+## Personally-identifiable data
 
-The original working tree had voice biometric data (raw `.wav`, extracted features, and/or
-embeddings) for real, named individuals — friends/classmates who'd been recorded to test
-enrollment/identification. Voiceprints are biometric identifiers; publishing them under real first
-names on a public GitHub repo isn't something to do without each person's explicit consent, which
-wasn't in place here. Decision: **only the 10 speakers from the original (anonymized-code) tutorial
-dataset ship in this repo** (`103F3021`, `207F2088`, `213F5100`, `217F3038`, `225M4062`, `229M2031`,
-`230M4087`, `233F4013`, `236M3043`, `240M3063`). Everything tied to a real name — enroll
-embeddings, extracted features, raw recordings, `recording.wav` — is excluded via `.gitignore` and
-stays local-only. See `.gitignore` for the exact list.
+This repo's working tree has voice biometric data (embeddings and/or raw `.wav`) for real, named
+individuals — friends/classmates who'd been recorded to test enrollment/identification, alongside
+the 10 speakers from the original anonymized-code tutorial dataset (`103F3021`, `207F2088`,
+`213F5100`, `217F3038`, `225M4062`, `229M2031`, `230M4087`, `233F4013`, `236M3043`, `240M3063`).
 
-Practical effect: `run_test.py`'s identification/verification numbers in the README are computed
-over these 10 speakers only, not the full personal set that was used during interactive
-development.
+During this cleanup it turned out that `enroll_embeddings/*.pth` (all 32 names), `recording.wav`,
+and `test_wavs/{sanjay,swarna}` were **already public** on this repo's `main` branch from before —
+so excluding them from this branch would not have actually protected anyone, only made this
+particular branch inconsistent with what's already live. Given that, this branch matches that
+existing exposure (regenerating the embeddings against the checkpoint actually in use, so they're
+at least functionally correct — see below) rather than pretending it isn't there. Two things were
+**not** already exposed and are deliberately kept that way (excluded via `.gitignore`, not added
+here): `feat_logfbank_nfilt40/test/{gopika,sanjay,swarna}` (extracted features) and raw `.wav`
+recordings captured through `website/`'s enroll/validation flow — no reason to create *new*
+exposure beyond what already exists.
+
+**This is not the same as saying the exposure is fine.** Voiceprints are biometric identifiers,
+and this data appears to have been published without the recorded individuals' consent. If you
+want this actually fixed rather than just not made worse, the real remedy is rewriting `main`'s
+git history to strip these files from every commit (not just removing them going forward — a
+later commit that deletes a file doesn't remove it from earlier commits), and being aware that if
+the repo has ever been cloned or forked by anyone else, they may still have a copy regardless of
+what happens to this repository. This was explicitly deferred, not solved, during this session.
 
 ## model_saved/ checkpoint choice, EER, and threshold
 

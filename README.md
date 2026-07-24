@@ -75,9 +75,9 @@ Assumes pre-extracted features laid out as `feat_logfbank_nfilt40/test/<speaker>
 |------|---------|
 | `model/` | ResNet-18 background network (`model.py`, `resnet.py`) |
 | `model_saved/` | Trained checkpoints (`checkpoint_13.pth` is the validated one — see `docs/PROJECT_ANALYSIS.md`) |
-| `enroll_embeddings/` | Precomputed speaker embeddings (the enrolled gallery); only the 10 bundled dataset speakers ship here |
+| `enroll_embeddings/` | Precomputed speaker embeddings (the enrolled gallery) — see `docs/PROJECT_ANALYSIS.md` re: personal data |
 | `feat_logfbank_nfilt40/test/` | Bundled test features per speaker (10 anonymized dataset speakers) |
-| `test_wavs/` | Bundled raw test audio (10 anonymized dataset speakers) |
+| `test_wavs/` | Bundled raw test audio |
 | `configure.py` | Paths and feature-extraction settings |
 | `DB_wav_reader.py`, `SR_Dataset.py` | Data loading / feature reading |
 | `enroll.py`, `verification.py`, `identification.py` | Core entry points |

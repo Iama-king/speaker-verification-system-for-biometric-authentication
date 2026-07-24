@@ -24,13 +24,15 @@ python run_test.py
 
 ## Hard constraints — do not violate
 
-- **No personally-identifiable voice data in git.** Only the 10 anonymized dataset speakers
-  (`103F3021`, `207F2088`, `213F5100`, `217F3038`, `225M4062`, `229M2031`, `230M4087`,
-  `233F4013`, `236M3043`, `240M3063`) may be committed — as raw wav, extracted features, or
-  embeddings. Anything under a real first/last name (voice recordings, `.pth` embeddings, feature
-  pickles) stays out of git; `.gitignore` already excludes the known ones by path. If you add a
-  new real-named speaker locally for testing, do not `git add` their data — extend `.gitignore`
-  instead of committing and gitignoring after the fact.
+- **Don't newly expose personally-identifiable voice data.** `enroll_embeddings/*.pth` (all
+  names), `recording.wav`, and `test_wavs/{sanjay,swarna}` are already public on this repo's
+  `main` from before this cleanup — see docs/PROJECT_ANALYSIS.md — so this branch matches that
+  existing exposure rather than pretending it isn't there. But `feat_logfbank_nfilt40/test/
+  {gopika,sanjay,swarna}` and any `website/`-captured `.wav` recordings were **not** already
+  exposed and are deliberately excluded (`.gitignore`) — don't add those or any newly-recorded
+  real-named speaker's data without checking whether it's already public first. When in doubt,
+  ask before committing anything under a real person's name; this is not a settled, low-stakes
+  call to make unilaterally.
 - **Only one checkpoint ships in `model_saved/`** (`checkpoint_13`, chosen by lowest EER across a
   31-speaker accent-diverse evaluation, not assumed — see `docs/PROJECT_ANALYSIS.md`). This
   codebase has no early stopping; later checkpoints (31-40) are actually broken (model collapse),
