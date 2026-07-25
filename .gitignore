@@ -20,6 +20,9 @@ website/enroll/*/*.wav
 website/validation/*/*.wav
 website/test/*/*.wav
 
+# Raw voice recordings captured through gui.py/gui_enroll.py (PHI — real people's voices)
+gui_recordings/
+
 # Session continuity notes (private working doc, not project documentation)
 CLAUDE_HANDOFF.md
 
@@ -50,6 +53,7 @@ feat_logfbank_nfilt40/test/gopika/
 feat_logfbank_nfilt40/test/sanjay/
 feat_logfbank_nfilt40/test/swarna/
 docs/RESULTS_LOCAL.md
+docs/RETRAIN_PLAN.md
 
 # Model checkpoints: only the validated-best checkpoint ships; the rest are local artifacts.
 # Chosen by evaluating all 40 checkpoints for EER on a 31-speaker set (10 dataset + 21 real

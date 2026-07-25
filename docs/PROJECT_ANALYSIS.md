@@ -35,14 +35,30 @@ gets used at inference time as the voiceprint.
 | `run_test.py` | Self-contained smoke test: rebuilds the gallery fresh from `feat_logfbank_nfilt40/test/<spk>/enroll.p` (doesn't depend on possibly-stale `enroll_embeddings/*.pth`), scores every `test.p`. **Use this as the source of truth for "does the model still work."** |
 | `EER.py` | Equal-error-rate / FAR-FRR threshold sweep. Currently hardcoded to a `D:/audio/rsp/test` path from the original author's machine — not runnable as-is; kept for reference on how to derive a threshold from your own data. |
 
+`gui.py` / `gui_enroll.py` originally hardcoded a `D:/audio/rsp/...` path from the original dev's
+machine, as did `sp.py`, the feature-extraction helper they call into (`sp.main()`) — fixed the
+same way as `verification.py`/`identification.py`/`enroll.py`: paths now come from `configure.py`
+(new `GUI_TEST_RAW_DIR`/`GUI_ENROLL_RAW_DIR` constants), recordings land in
+`gui_recordings/{test,enroll}/<name>/` (gitignored — real voices, never commit), and
+`sp.py` writes into `feat_logfbank_nfilt40/test/<name>/`. This also surfaced and fixed a real
+functional bug: `sp.py`'s single-speaker branch wrote `<name>.p`, but `enroll.py`'s file classifier
+matches on the literal substrings `'enroll.p'`/`'test.p'` — so `<name>.p` was never classified as
+either, meaning `gui_enroll.py` looked like it enrolled a new speaker but silently didn't. Fixed to
+write `enroll.p`/`test.p` matching the convention used everywhere else in the pipeline. Their
+Python dependencies (`sounddevice`, `wavio`) are in `requirements.txt`. Verified end-to-end with a
+dry run (real path/filename flow, audio decoding stubbed out) rather than assumed.
+
 ## Peripheral / experimental scripts (not part of the core pipeline)
 
-`dat.py`, `enp.py`, `sp.py`, `split.py`, `te1.py`, `test.py` are one-off feature-extraction/audio-
-splitting experiments. They depend on packages the core pipeline doesn't need (`librosa`,
+`dat.py`, `enp.py`, `split.py`, `te1.py`, `test.py` are one-off feature-extraction/audio-splitting
+experiments. They depend on packages the core pipeline doesn't need (`librosa`,
 `python_speech_features`, `pydub`, `tensorflow`) and several hardcode `D:/audio/...` paths. They
 aren't required to train, enroll, verify, or identify — left in place for reference, not treated as
 supported entry points. `train1.py` is an abandoned variant of `train.py` (its `train_val_split()`
-is an empty stub — a syntax error if actually run).
+is an empty stub — a syntax error if actually run). `sp.py` is the exception in this group: it's
+actually used by `gui.py`/`gui_enroll.py`, so it's semi-core, not purely peripheral — it had two
+dead imports (`tensorflow`, `IPython.display`, unused anywhere in the file) removed during this
+pass, but its hardcoded `D:/audio/rsp/...` paths are still there.
 
 ## Known issues and how this branch addresses them
 

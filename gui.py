@@ -9,7 +9,8 @@ from tkinter import messagebox
 import sounddevice as sound
 from scipy.io.wavfile import write
 import wavio as wv
-testdir = "D:/audio/rsp/splits 30sec/"
+import configure as c
+testdir = c.GUI_TEST_RAW_DIR + "/"
 root=Tk()
 root.geometry("600x700+400+80")
 root.resizable(False,False)
@@ -44,7 +45,7 @@ def Record():
         os.makedirs(testdir1)
     write(testdir1+"/"+nam+".wav",freq,recording)
     sp.main(nam)
-    sc,bestsp=id.main(nam,nam+".p")
+    sc,bestsp=id.main(nam,"test.p")
     if(nam==bestsp):
         messagebox.showinfo("Time Countdown", "result:accept")
     else:

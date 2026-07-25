@@ -2,11 +2,8 @@
 import librosa
 import numpy as np
 from python_speech_features import fbank
-import tensorflow as tf
-import librosa
 import pickle
-from configure import SAMPLE_RATE
-import IPython.display as ipd
+from configure import SAMPLE_RATE, GUI_TEST_RAW_DIR, GUI_ENROLL_RAW_DIR, TEST_FEAT_DIR
 import os
 def normalize_frames(m,Scale=True):# z score norm
     if Scale:
@@ -27,11 +24,11 @@ def main(name="null",va=0):
     save = True
     load = True
     if(va==0):
-        pt="D:/audio/rsp/splits 30sec/"
-        target="D:/audio/rsp/test/"
+        pt = GUI_TEST_RAW_DIR + "/"
+        target = TEST_FEAT_DIR + "/"
     else:
-        pt = "D:/audio/rsp/newenroll/"
-        target = "D:/audio/rsp/feat/"
+        pt = GUI_ENROLL_RAW_DIR + "/"
+        target = TEST_FEAT_DIR + "/"
     la3=os.listdir(pt)
     if(name=="null"):
         for i in la3:
@@ -49,6 +46,10 @@ def main(name="null",va=0):
                     pkl.dump(st1, fileObject)
                     fileObject.close()
     else:
+        # File name matches what verification.py/identification.py/enroll.py expect:
+        # <target>/<speaker>/{enroll.p,test.p} — va=0 is the identify/verify flow (gui.py),
+        # va=1 is the enroll flow (gui_enroll.py).
+        out_name = 'enroll.p' if va else 'test.p'
         for j in os.listdir((pt + name)):
             a1 = feat(pt + name + "/" + j)
             st1 = {}
@@ -57,7 +58,7 @@ def main(name="null",va=0):
             log_dir = target + name
             if not os.path.exists(log_dir):
                 os.makedirs(log_dir)
-            filename1 = target + name + '/' + j.split(".")[0] + '.p'
+            filename1 = target + name + '/' + out_name
             fileObject = open(filename1, 'wb')
             if save:
                 pkl.dump(st1, fileObject)
@@ -65,5 +66,3 @@ def main(name="null",va=0):
 
 if __name__ == '__main__':
     main()
-import enroll
-import verification as v

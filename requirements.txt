@@ -10,7 +10,11 @@ librosa
 python_speech_features
 scipy
 
-# Optional GUI (gui.py / gui_enroll.py)
+# Optional GUI (gui.py / gui_enroll.py) — see README's "Notes & known issues"
+# for a caveat: both currently hardcode a D:/ path from the original dev's
+# machine and won't run end-to-end without editing that path first.
+sounddevice
+wavio
 # tk  # ships with most Python installs
 
 # Notes:
