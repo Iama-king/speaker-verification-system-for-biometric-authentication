@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # Near-instant, zero dependencies: catches syntax errors before spending any
+  # time/minutes on the smoke test below.
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      # train1.py is excluded: a known-abandoned variant with an intentional
+      # syntax error (empty function stub) — see CLAUDE.md.
+      - run: python -m py_compile $(git ls-files '*.py' | grep -v '^train1.py$')
+
+  # Self-contained end-to-end smoke test (run_test.py). Only needs torch (CPU
+  # wheel, ~200MB not ~2GB) + numpy — no GPU, no extra data download, since
+  # the checkpoint and the 10 bundled test speakers are already in the repo.
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: syntax-check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: Install CPU-only torch + numpy
+        run: pip install torch --index-url https://download.pytorch.org/whl/cpu numpy
+      - name: Run run_test.py (fails the job if identification isn't 100%)
+        run: python run_test.py
