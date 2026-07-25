@@ -112,6 +112,9 @@ def main():
     for s, best, bs, ok in rows:
         print("  true=%-12s pred=%-12s score=%.4f  %s" % (s, best, bs, "OK" if ok else "X"))
     print("Accuracy: %d/%d = %.1f%%\n" % (correct, total, 100 * correct / max(total, 1)))
+    if correct != total:
+        print("FAIL: expected 100%% identification on the bundled dataset speakers")
+        sys.exit(1)
 
     gen, imp = [], []
     for s in spks:
