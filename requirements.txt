@@ -1,0 +1,19 @@
+# Core runtime (enrollment / verification / identification)
+numpy
+torch>=1.7
+torchvision
+pandas
+matplotlib
+
+# Feature extraction from raw .wav (only needed if you regenerate features)
+librosa
+python_speech_features
+scipy
+
+# Optional GUI (gui.py / gui_enroll.py)
+# tk  # ships with most Python installs
+
+# Notes:
+# - For GPU, install the CUDA build of torch that matches your driver, e.g.
+#   pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
+# - Validated on: torch 1.7.1+cu110, NVIDIA RTX 3060, and on CPU-only.

@@ -17,7 +17,8 @@ def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes):
         model.cuda()
     print('=> loading checkpoint')
     # original saved file with DataParallel
-    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth')
+    map_location = 'cuda' if use_cuda else 'cpu'
+    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth', map_location=map_location)
     # create new OrderedDict that does not contain `module.`
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
@@ -36,15 +37,16 @@ def split_enroll_and_test(dataroot_dir):
     test_DB = test_DB.reset_index(drop=True)
     return enroll_DB, test_DB
 
-def load_enroll_embeddings(embedding_dir):
+def load_enroll_embeddings(embedding_dir, use_cuda=False):
     embeddings = {}
+    map_location = 'cuda' if use_cuda else 'cpu'  # embeddings were saved as CUDA tensors; remap for CPU-only machines
     for f in os.listdir(embedding_dir):
         spk = f.replace('.pth','')
         # Select the speakers who are in the 'enroll_spk_list'
         embedding_path = os.path.join(embedding_dir, f)
-        tmp_embeddings = torch.load(embedding_path)
+        tmp_embeddings = torch.load(embedding_path, map_location=map_location)
         embeddings[spk] = tmp_embeddings
-        
+
     return embeddings
 
 def get_embeddings(use_cuda, filename, model, test_frames):
@@ -91,52 +93,47 @@ def perform_identification(use_cuda, model, embeddings, test_filename, test_fram
             best_spk = spk
     print(test_filename)
     print("Speaker identification result : %s" %best_spk)
-    true_spk = test_filename.split('/')[-2].split('_')[0]
+    true_spk = os.path.basename(os.path.dirname(test_filename)).split('_')[0]
     print("\n=== Speaker identification ===")
     print("True speaker : %s\nPredicted speaker : %s\nResult : %s\n" %(true_spk, best_spk, true_spk==best_spk))
     print("matched percent")
-    print(score)
-    return score,best_spk
+    print(max_score)
+    return max_score,best_spk
 
-def main(test_speaker,filename):
-    
-    log_dir = 'model_saved' # Where the checkpoints are saved
-    embedding_dir = 'enroll_embeddings' # Where embeddings are saved
-    test_dir = "D:/audio/rsp/test/"#'D:/audio/feat/'#"D:/audio/test2/"'#'feat_logfbank_nfilt40/test/' # Where test features are saved
-    
+def main(test_speaker='103F3021', filename='test.p', test_dir=c.TEST_FEAT_DIR):
+
+    log_dir = 'model_saved'          # Where the checkpoints are saved
+    embedding_dir = 'enroll_embeddings'  # Where enrolled speaker embeddings are saved
+    # test_dir defaults to the repo-relative feature dir from configure.py
+    # (feat_logfbank_nfilt40/test), laid out as <test_dir>/<speaker>/<filename>.
+
     # Settings
-    use_cuda = True # Use cuda or not
-    embedding_size = 128 # Dimension of speaker embeddings
-    cp_num = 24 # Which checkpoint to use?
-    n_classes = 240 # How many speakers in training data?
-    test_frames = 100 # Split the test utterance 
+    use_cuda = torch.cuda.is_available()  # Auto-detect GPU; falls back to CPU
+    embedding_size = 128  # Dimension of speaker embeddings
+    cp_num = 13            # Lowest-EER checkpoint of 40 evaluated on a 31-speaker set
+                            # (10 bundled + 21 real enrolled speakers) — see
+                            # docs/PROJECT_ANALYSIS.md and docs/eer_plot.png.
+    n_classes = 240       # How many speakers in training data?
+    test_frames = 100     # Split the test utterance
 
     # Load model from checkpoint
     model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes)
 
-    # Get the dataframe for test DB
-    enroll_DB, test_DB = split_enroll_and_test(test_dir)#'D:/audio/rsp/test/')
-    
-    # Load enroll embeddings
-    embeddings = load_enroll_embeddings(embedding_dir)
-    
-    """ Test speaker list
-    '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 
-    '229M2031', '230M4087', '233F4013', '236M3043', '240M3063',sanjay
-    """ 
-    
-    #spk_list = ['103F3021', '207F2088', '213F5100', '217F3038', '225M4062',\
-    #'229M2031', '230M4087', '233F4013', '236M3043', '240M3063','sanjay']
-    spk_list = os.listdir('D:/audio/rsp/feat')
-    
-    # Set the test speaker
-    
-    #test_path = os.path.join(test_dir, test_speaker, 'test.p')
-    test_path=test_dir+test_speaker+'/'+filename#/test.p'
-    # Perform the test 
-    sc,best_spk = perform_identification(use_cuda, model, embeddings, test_path, test_frames, spk_list)
-    return sc,best_spk
+    # Load enroll embeddings; the enrolled speakers form the identification gallery
+    embeddings = load_enroll_embeddings(embedding_dir, use_cuda)
+    spk_list = list(embeddings.keys())
+
+    # Set the test utterance path: <test_dir>/<speaker>/<filename>
+    test_path = os.path.join(test_dir, test_speaker, filename)
+
+    # Perform the test
+    sc, best_spk = perform_identification(use_cuda, model, embeddings, test_path, test_frames, spk_list)
+    return sc, best_spk
+
 if __name__ == '__main__':
-    test_speaker = 'sanjay'
-    filename="sanjay.p"
-    main(test_speaker,filename)
+    # Example: identify the 'test.p' utterance of speaker '103F3021' against all enrolled speakers.
+    # (Uses one of the bundled anonymized dataset speakers so this runs out-of-the-box on a fresh
+    # clone; swap in your own speaker name once you've enrolled one with enroll.py.)
+    test_speaker = '103F3021'
+    filename = "test.p"
+    main(test_speaker, filename)

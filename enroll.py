@@ -17,7 +17,8 @@ def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes):
         model.cuda()
     print('=> loading checkpoint')
     # original saved file with DataParallel
-    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth')
+    map_location = 'cuda' if use_cuda else 'cpu'
+    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth', map_location=map_location)
     # create new OrderedDict that does not contain `module.`
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
@@ -103,32 +104,33 @@ def enroll_per_spk(use_cuda, test_frames, model, DB, embedding_dir):
         print("Save the embeddings for %s" % (spk_index))
     return embeddings
     
-def main():
-        
+def main(dataroot_dir=c.TEST_FEAT_DIR):
+
     # Settings
-    use_cuda = True
+    use_cuda = torch.cuda.is_available()  # Auto-detect GPU; falls back to CPU
     log_dir = 'model_saved'
     embedding_size = 128
-    cp_num = 24 # Which checkpoint to use?
+    cp_num = 13  # Lowest-EER checkpoint of 40 evaluated — see docs/PROJECT_ANALYSIS.md
     n_classes = 240
     test_frames = 200
-    
+
     # Load model from checkpoint
     model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes)
-    
-    # Get the dataframe for enroll DB
-    enroll_DB, test_DB = split_enroll_and_test("D:/audio/rsp/feat")
-    
+
+    # Get the dataframe for enroll DB. Defaults to the repo-relative feature dir from
+    # configure.py (feat_logfbank_nfilt40/test); pass your own dir for other speakers.
+    enroll_DB, test_DB = split_enroll_and_test(dataroot_dir)
+
     # Where to save embeddings
     embedding_dir = 'enroll_embeddings'
-    
+
     # Perform the enrollment and save the results
     enroll_per_spk(use_cuda, test_frames, model, enroll_DB, embedding_dir)
-    
+
     """ Test speaker list
-    '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 
+    '103F3021', '207F2088', '213F5100', '217F3038', '225M4062',
     '229M2031', '230M4087', '233F4013', '236M3043', '240M3063'
-    """ 
+    """
 
 if __name__ == '__main__':
     main()

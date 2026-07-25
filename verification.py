@@ -17,7 +17,8 @@ def load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes):
         model.cuda()
     print('=> loading checkpoint')
     # original saved file with DataParallel
-    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth')
+    map_location = 'cuda' if use_cuda else 'cpu'
+    checkpoint = torch.load(log_dir + '/checkpoint_' + str(cp_num) + '.pth', map_location=map_location)
     # create new OrderedDict that does not contain `module.`
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
@@ -36,15 +37,16 @@ def split_enroll_and_test(dataroot_dir):
     test_DB = test_DB.reset_index(drop=True)
     return enroll_DB, test_DB
 
-def load_enroll_embeddings(embedding_dir):
+def load_enroll_embeddings(embedding_dir, use_cuda=False):
     embeddings = {}
+    map_location = 'cuda' if use_cuda else 'cpu'  # embeddings were saved as CUDA tensors; remap for CPU-only machines
     for f in os.listdir(embedding_dir):
         spk = f.replace('.pth','')
         # Select the speakers who are in the 'enroll_spk_list'
         embedding_path = os.path.join(embedding_dir, f)
-        tmp_embeddings = torch.load(embedding_path)
+        tmp_embeddings = torch.load(embedding_path, map_location=map_location)
         embeddings[spk] = tmp_embeddings
-        
+
     return embeddings
 
 def get_embeddings(use_cuda, filename, model, test_frames):
@@ -92,55 +94,51 @@ def perform_verification(use_cuda, model, embeddings, enroll_speaker, test_filen
     else:
         result = 'Reject'
         
-    test_spk = test_filename.split('/')[-1].split('_')[0]
+    test_spk = os.path.basename(test_filename).split('_')[0]
     print("\n=== Speaker verification ===")
     print("True speaker: %s\nClaimed speaker : %s\n\nResult : %s\n" %(enroll_speaker, test_spk, result))
     print("Score : %0.4f\nThreshold : %0.2f\n" %(score, thres))
     return score,result
 
-def main(enroll_speaker,test_speaker,fname,test_dir="D:/audio/rsp/test"):
-    
-    log_dir = 'model_saved' # Where the checkpoints are saved
-    embedding_dir = 'enroll_embeddings' # Where embeddings are saved
-    #test_dir = "D:/audio/rsp/test"#'D:/audio/feat' # Where test features are saved
-    
+def main(enroll_speaker='103F3021', test_speaker='103F3021', fname='test.p',
+         test_dir=c.TEST_FEAT_DIR, thres=0.96):
+
+    log_dir = 'model_saved'              # Where the checkpoints are saved
+    embedding_dir = 'enroll_embeddings'  # Where enrolled speaker embeddings are saved
+    # test_dir defaults to the repo-relative feature dir from configure.py
+    # (feat_logfbank_nfilt40/test), laid out as <test_dir>/<speaker>/<filename>.
+
     # Settings
-    use_cuda = True # Use cuda or not
-    embedding_size = 128 # Dimension of speaker embeddings
-    cp_num = 24 # Which checkpoint to use?
-    n_classes = 240 # How many speakers in training data?
-    test_frames = 100 # Split the test utterance 
+    use_cuda = torch.cuda.is_available()  # Auto-detect GPU; falls back to CPU
+    embedding_size = 128  # Dimension of speaker embeddings
+    cp_num = 13            # Lowest-EER checkpoint of 40 evaluated on a 31-speaker set
+                            # (10 bundled + 21 real enrolled speakers) — see
+                            # docs/PROJECT_ANALYSIS.md and docs/eer_plot.png.
+    n_classes = 240       # How many speakers in training data?
+    test_frames = 100     # Split the test utterance
 
     # Load model from checkpoint
     model = load_model(use_cuda, log_dir, cp_num, embedding_size, n_classes)
-    
-    # Get the dataframe for test DB
-    enroll_DB, test_DB = split_enroll_and_test("D:/audio/rsp/test")#"D:/audio/feat")#folder
-    
+
     # Load enroll embeddings
-    embeddings = load_enroll_embeddings(embedding_dir)
-    
-    """ Test speaker list
-    '103F3021', '207F2088', '213F5100', '217F3038', '225M4062', 
-    '229M2031', '230M4087', '233F4013', '236M3043', '240M3063'
-    """ 
-    
-    # # Set the true speaker
-    # enroll_speaker = 'sanjay'
-    #
-    # # Set the claimed speaker
-    # test_speaker = 'sanjay'
-    
-    # Threshold
-    thres = 0.98
-    test_path = os.path.join(test_dir, test_speaker, fname)#'test.p')
-    
-    # Perform the test 
-    s,r=perform_verification(use_cuda, model, embeddings, enroll_speaker, test_path, test_frames, thres)
-    return s,r
+    embeddings = load_enroll_embeddings(embedding_dir, use_cuda)
+
+    # Threshold for accept/reject, set at the EER point (~0.96) measured across a realistic,
+    # accent-diverse 31-speaker set — NOT the ~0.89 you'd get from the bundled 10 speakers
+    # alone, which understates real-world error rate. See docs/PROJECT_ANALYSIS.md: this model
+    # is noticeably less discriminative between speakers whose accent doesn't match its training
+    # data. Re-derive for your own population before production use.
+    test_path = os.path.join(test_dir, test_speaker, fname)
+
+    # Perform the test
+    s, r = perform_verification(use_cuda, model, embeddings, enroll_speaker, test_path, test_frames, thres)
+    return s, r
+
 if __name__ == '__main__':
-    en = "Madhu"
-    # # Set the claimed speaker
-    te = 'dinesh'
-    fname='dinesh4.p'
-    score,result=main(en,te,fname)
+    # Example: does speaker '103F3021's test utterance match the enrolled '103F3021'?
+    # (Uses one of the bundled anonymized dataset speakers so this runs out-of-the-box on a fresh
+    # clone; swap in your own speaker name once you've enrolled one with enroll.py.)
+    enroll_speaker = "103F3021"
+    test_speaker = '103F3021'
+    fname = 'test.p'
+    score, result = main(enroll_speaker, test_speaker, fname)

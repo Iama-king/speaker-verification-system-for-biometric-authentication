@@ -12,9 +12,11 @@ import os
 import sys
 from glob import glob
 
-import librosa
 import numpy as np
 import pandas as pd
+# NOTE: librosa is only needed for audio feature extraction (read_audio).
+# It is imported lazily inside read_audio() so that enrollment/verification/
+# identification can run without librosa installed.
 
 from configure import SAMPLE_RATE
 
@@ -36,6 +38,7 @@ def find_feats(directory, pattern='**/*.p'):
 
 
 def read_audio(filename, sample_rate=SAMPLE_RATE):
+    import librosa  # lazy import: only required for feature extraction from wav
     audio, sr = librosa.load(filename, sr=sample_rate, mono=True)
     audio = audio.flatten()
     return audio

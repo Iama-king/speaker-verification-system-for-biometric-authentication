@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Node (web front-end)
+website/node_modules/
+# Raw voice recordings captured through the web demo (PHI — real people's voices)
+website/enroll/*/*.wav
+website/validation/*/*.wav
+website/test/*/*.wav
+
+# Session continuity notes (private working doc, not project documentation)
+CLAUDE_HANDOFF.md
+
+# Local run scratch / machine-specific launchers & logs
+run_test.bat
+run_diag.bat
+run_findenv.bat
+run_scripts_test.bat
+run_scripts_cpu.bat
+open_vscode.bat
+*.txt.log
+diag.txt
+envcheck.txt
+scripts_test.txt
+scripts_cpu.txt
+test_output.txt
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Personal/PHI: named individuals' voice biometric data not already exposed on GitHub's `main`.
+# enroll_embeddings/*.pth (all names), recording.wav, and test_wavs/{sanjay,swarna} were already
+# public on `main` before this cleanup, so those ship (regenerated against the current checkpoint
+# where relevant — see docs/PROJECT_ANALYSIS.md). feat_logfbank_nfilt40 test features and
+# website/ recordings were never exposed, so those stay out to avoid *new* exposure.
+feat_logfbank_nfilt40/test/gopika/
+feat_logfbank_nfilt40/test/sanjay/
+feat_logfbank_nfilt40/test/swarna/
+docs/RESULTS_LOCAL.md
+
+# Model checkpoints: only the validated-best checkpoint ships; the rest are local artifacts.
+# Chosen by evaluating all 40 checkpoints for EER on a 31-speaker set (10 dataset + 21 real
+# enrolled speakers) — see docs/PROJECT_ANALYSIS.md. checkpoint_13 had the lowest EER (12.85%).
+model_saved/checkpoint_*.pth
+!model_saved/checkpoint_13.pth
