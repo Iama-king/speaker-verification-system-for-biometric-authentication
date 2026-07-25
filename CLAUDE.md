@@ -1,67 +1,63 @@
 # CLAUDE.md
 
-Guidance for Claude Code (or any agent) working in this repo. See `README.md` for user-facing docs
-and `docs/PROJECT_ANALYSIS.md` for the full pipeline/architecture writeup and known-issue history.
+Agent guidance for this repo. `README.md` = user docs. `docs/PROJECT_ANALYSIS.md` = full
+pipeline/architecture/known-issues writeup. `docs/RETRAIN_PLAN.md` = staged plan for the
+accent-mismatch fix (local-only, not committed).
 
-## What this project is
+## What this is
 
-Text-independent speaker verification (1:1) and identification (1:N) from voice, using a
-ResNet-18 embedding model. Core pipeline: `DB_wav_reader.py`/`SR_Dataset.py` (features) →
-`model/model.py` (`background_resnet`) → `verification.py`/`identification.py` (inference).
+Text-independent speaker verification (1:1) / identification (1:N) from voice, ResNet-18
+embedding model. Pipeline: `DB_wav_reader.py`/`SR_Dataset.py` (features) → `model/model.py`
+(`background_resnet`) → `verification.py`/`identification.py` (inference).
 
 ## Running things
 
-Use `run_test.py` as the reference smoke test after any change — it's self-contained, rebuilds
-the enrollment gallery fresh from `feat_logfbank_nfilt40/test/<spk>/enroll.p`, and auto-detects
-GPU vs CPU:
+Smoke test after any change: `python run_test.py` — self-contained, rebuilds gallery fresh from
+`feat_logfbank_nfilt40/test/<spk>/enroll.p`, auto GPU/CPU.
 
-```bash
-python run_test.py
-```
+`identification.py` reads precomputed `enroll_embeddings/*.pth` instead — regenerate w/ `enroll.py`
+after retraining or they go stale silently.
 
-`identification.py` instead reads precomputed `enroll_embeddings/*.pth` — regenerate those with
-`enroll.py` after retraining, or they'll silently go stale.
+## Hard constraints
 
-## Hard constraints — do not violate
-
-- **Don't newly expose personally-identifiable voice data.** `enroll_embeddings/*.pth` (all
-  names), `recording.wav`, and `test_wavs/{sanjay,swarna}` are already public on this repo's
-  `main` from before this cleanup — see docs/PROJECT_ANALYSIS.md — so this branch matches that
-  existing exposure rather than pretending it isn't there. But `feat_logfbank_nfilt40/test/
-  {gopika,sanjay,swarna}` and any `website/`-captured `.wav` recordings were **not** already
-  exposed and are deliberately excluded (`.gitignore`) — don't add those or any newly-recorded
-  real-named speaker's data without checking whether it's already public first. When in doubt,
-  ask before committing anything under a real person's name; this is not a settled, low-stakes
-  call to make unilaterally.
-- **Only one checkpoint ships in `model_saved/`** (`checkpoint_13`, chosen by lowest EER across a
-  31-speaker accent-diverse evaluation, not assumed — see `docs/PROJECT_ANALYSIS.md`). This
-  codebase has no early stopping; later checkpoints (31-40) are actually broken (model collapse),
-  so "newest epoch = best" is false here. If you retrain and swap checkpoints, you **must**
-  regenerate `enroll_embeddings/*.pth` with `enroll.py` afterward — embeddings from different
-  checkpoints live in different, non-comparable vector spaces, and mixing them silently produces
-  garbage cosine-similarity scores (this bit us once already during this cleanup).
-- **This model has a known accent/domain-mismatch limitation**, not just a threshold-tuning one:
-  it accepts genuine out-of-distribution-accent speakers fine, but is measurably worse at telling
-  different speakers *within* that group apart from each other (14% cohort EER vs 0.17% for the
-  training-matched dataset speakers). See `docs/PROJECT_ANALYSIS.md` before claiming this works
-  well for any population that doesn't resemble the original training data.
-- **Don't force-push.** This repo's `main`/`master` is a real, published GitHub repo. Publish
-  changes via a branch + PR, not by rewriting history, unless the user explicitly asks otherwise.
+- **No new PII exposure.** `enroll_embeddings/*.pth` (all names), `recording.wav`,
+  `test_wavs/{sanjay,swarna}` already public on `main` pre-cleanup (see PROJECT_ANALYSIS.md) —
+  matched, not hidden. `feat_logfbank_nfilt40/test/{gopika,sanjay,swarna}` + `website/` `.wav`
+  recordings were **not** exposed, stay excluded (`.gitignore`). New real-named speaker data:
+  check exposure first, ask before committing — not a unilateral call.
+- **One checkpoint ships**: `checkpoint_13`, lowest EER across 31-speaker accent-diverse eval, not
+  assumed (see PROJECT_ANALYSIS.md). No early stopping; checkpoints 31-40 are broken (collapsed) —
+  "newer = better" false here. Swap checkpoint → **must** regenerate `enroll_embeddings/*.pth` w/
+  `enroll.py` — cross-checkpoint embeddings are non-comparable, garbage scores otherwise (bit us
+  once already).
+- **Known accent/domain-mismatch limitation**, not just threshold tuning: accepts
+  out-of-distribution speakers fine, worse at discriminating *within* that group (14% cohort EER
+  vs 0.17% training-matched). See PROJECT_ANALYSIS.md before claiming this works for populations
+  unlike training data.
+- **No force-push.** `main`/`master` = real published repo. Branch + PR, not history rewrite,
+  unless explicitly asked otherwise.
 
 ## Environment
 
-This project depends on a specific conda env with a working GPU-enabled PyTorch build (see
-`docs/PROJECT_ANALYSIS.md` / `CLAUDE_HANDOFF.md` for machine-specific env names/versions found
-during setup — don't assume `pip install -r requirements.txt` into a fresh env matches the
-validated GPU build; CUDA-enabled torch needs the right wheel for the driver).
+Needs a conda env w/ working GPU PyTorch build (see PROJECT_ANALYSIS.md / CLAUDE_HANDOFF.md for
+machine-specific env/versions found during setup). Fresh `pip install -r requirements.txt` may not
+match the validated GPU build — CUDA torch needs the right wheel for the driver.
 
 ## Known non-obvious things
 
-- `train1.py` is a broken, abandoned variant of `train.py` — don't use it as a reference.
-- `EER.py` is not runnable as shipped (hardcoded absolute path from the original author's
-  machine) — it documents the FAR/FRR/threshold-sweep approach, not a working script.
-- `dat.py`, `enp.py`, `sp.py`, `split.py`, `te1.py`, `test.py` are one-off experiments, not part of
-  the supported pipeline, and pull in extra deps (`librosa`, `tensorflow`, `pydub`) that the core
-  pipeline doesn't need.
-- `website/` is a separate Node/Express + Firebase app living inside this Python repo at the
-  user's request — treat it as independent (own `package.json`, own `node_modules/`, gitignored).
+- `train1.py`: broken/abandoned `train.py` variant, don't reference.
+- `EER.py`: not runnable as shipped (hardcoded original-author path), documents the FAR/FRR sweep
+  approach only.
+- `dat.py`, `enp.py`, `split.py`, `te1.py`, `test.py`: one-off experiments, not core pipeline,
+  extra deps (`librosa`, `tensorflow`, `pydub`) not otherwise needed.
+- `sp.py`: feature-extraction helper used by `gui.py`/`gui_enroll.py` (`sp.main()`), so it's
+  semi-core, not purely peripheral. Two dead imports (`tensorflow`, `IPython.display`, unused
+  anywhere in the file) removed. Paths now come from `configure.py`
+  (`GUI_TEST_RAW_DIR`/`GUI_ENROLL_RAW_DIR`/`TEST_FEAT_DIR`), not hardcoded. Output filename fixed
+  to `enroll.p`/`test.p` (was writing `<name>.p`, which `enroll.py`'s file classifier — matches on
+  `'enroll.p'`/`'test.p'` substrings — silently never picked up; this is why `gui_enroll.py` looked
+  like it enrolled someone but didn't).
+- `gui.py`/`gui_enroll.py`: paths are now repo-relative like the rest of the pipeline. Recordings
+  land in `gui_recordings/{test,enroll}/<name>/` — real voices, gitignored, never commit.
+- `website/`: separate Node/Express+Firebase app in this Python repo at user's request —
+  independent (own `package.json`/`node_modules/`, gitignored).

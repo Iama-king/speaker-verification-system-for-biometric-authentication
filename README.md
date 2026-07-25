@@ -73,7 +73,10 @@ Assumes pre-extracted features laid out as `feat_logfbank_nfilt40/test/<speaker>
   python identification.py    # edit the __main__ block, or call main(test_speaker, filename)
   ```
 - **Train** from scratch: set `TRAIN_FEAT_DIR` in `configure.py`, then `python train.py`.
-- **GUI** (optional): `python gui.py` (verify) / `python gui_enroll.py` (enroll).
+- **GUI** (optional): `python gui.py` (verify) / `python gui_enroll.py` (enroll). Records to
+  `gui_recordings/{test,enroll}/<name>/` (repo-relative, gitignored — real voices, never commit),
+  extracts features via `sp.py`, and writes into `feat_logfbank_nfilt40/test/<name>/` in the
+  `enroll.p`/`test.p` layout the rest of the pipeline expects.
 
 ## Repository layout
 

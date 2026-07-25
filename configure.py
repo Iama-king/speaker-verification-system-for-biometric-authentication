@@ -7,6 +7,11 @@ TEST_WAV_DIR = 'test_wavs'
 TRAIN_FEAT_DIR = 'feat_logfbank_nfilt40/train'
 TEST_FEAT_DIR = 'feat_logfbank_nfilt40/test'
 
+# Local staging dirs for GUI-recorded audio (raw wav, before feature extraction).
+# Real people's voices land here — keep gitignored, never commit.
+GUI_TEST_RAW_DIR = 'gui_recordings/test'
+GUI_ENROLL_RAW_DIR = 'gui_recordings/enroll'
+
 # Context window size
 NUM_WIN_SIZE = 100 #10
 

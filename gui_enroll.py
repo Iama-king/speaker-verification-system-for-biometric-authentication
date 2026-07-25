@@ -10,7 +10,8 @@ from tkinter import messagebox
 import sounddevice as sound
 from scipy.io.wavfile import write
 import wavio as wv
-testdir = "D:/audio/rsp/newenroll/"
+import configure as c
+testdir = c.GUI_ENROLL_RAW_DIR + "/"
 root=Tk()
 root.geometry("600x700+400+80")
 root.resizable(False,False)
