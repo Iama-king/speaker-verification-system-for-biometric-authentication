@@ -3,11 +3,10 @@
 ## What this is
 
 A text-independent speaker recognition system: verify a claimed identity (1:1) or identify a
-speaker from an enrolled gallery (1:N) from a short utterance. Built on the tutorial by
-[jymsuper](https://github.com/jymsuper/SpeakerRecognition_tutorial); this fork made it runnable
-outside the original author's machine (hardcoded `D:/audio/...` paths, forced CUDA, a stale
-`librosa` import that crashed CPU-only runs, a verification threshold that rejected real users)
-and removed personally-identifiable voice data before publishing.
+speaker from an enrolled gallery (1:N) from a short utterance. This cleanup made it runnable
+outside the machine it was originally developed on (hardcoded `D:/audio/...` paths, forced CUDA, a
+stale `librosa` import that crashed CPU-only runs, a verification threshold that rejected real
+users) and validated the shipped model checkpoint by EER instead of assuming one.
 
 ## Pipeline
 
