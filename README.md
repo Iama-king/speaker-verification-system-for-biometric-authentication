@@ -7,6 +7,12 @@ neural network, then compares embeddings with cosine similarity to **verify** a 
 
 Journal paper: http://www.ijnrd.org/papers/IJNRD2306536.pdf
 
+Built on top of the [jymsuper/SpeakerRecognition_tutorial](https://github.com/jymsuper/SpeakerRecognition_tutorial)
+reference implementation. See `docs/PROJECT_ANALYSIS.md` for a full analysis of what changed on
+top of that base: hardcoded-path/CUDA fixes, checkpoint validated by EER instead of assumed,
+verification threshold recalibrated from measured data, an accent/domain-mismatch limitation
+discovered and documented, plus docs, tests, and dependency pinning that weren't there before.
+
 ## Status
 
 Validated on the bundled test set (see `run_test.py`), using `checkpoint_13` — chosen as the
@@ -112,7 +118,3 @@ distribution — see `docs/PROJECT_ANALYSIS.md` for the full writeup.
 - **GPU memory:** running several inference processes at once (or alongside other GPU apps) can trigger
   transient `CUBLAS_STATUS_NOT_INITIALIZED`. Close other GPU users or run on CPU.
 - `train1.py` is an unfinished experimental variant; use `train.py`.
-
-## Credits
-
-Built on the speaker-recognition tutorial by [jymsuper](https://github.com/jymsuper/SpeakerRecognition_tutorial).
