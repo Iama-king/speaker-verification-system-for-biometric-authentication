@@ -44,12 +44,21 @@ wav (16 kHz)
 
 ## Quick start
 
+0. This repo is ~700MB (it bundles a 240-speaker training feature set for `train.py`, not just the
+   demo). A full `git clone` can be unreliable on a slow/unstable connection. If you just want to
+   run the demo (not train from scratch), clone shallow instead — much faster and more reliable:
+   ```bash
+   git clone --depth 1 https://github.com/Iama-king/speaker-verification-system-for-biometric-authentication.git
+   ```
+
 1. Install dependencies (ideally in a fresh conda env or venv):
 
    ```bash
    pip install -r requirements.txt
    ```
    For GPU, install the CUDA build of torch matching your driver (see notes in `requirements.txt`).
+   Verified clean on a fresh `python -m venv` + `pip install -r requirements.txt` (CPU-only,
+   Python 3.10) — `run_test.py`, `verification.py`, and `identification.py` all pass out of the box.
 
 2. Run the end-to-end self-test (auto-detects GPU, falls back to CPU):
 
